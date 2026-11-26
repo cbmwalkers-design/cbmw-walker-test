@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CBMW Walk Programme</title>
+  <meta name="description" content="Costa Blanca Mountain Walkers: the walk programme, read-only.">
+  <meta name="theme-color" content="#2d5b3e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Walks">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="../shared/cbmw-popup.css">
+  <link rel="stylesheet" href="walker.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>Walk Programme</h1>
+    <p id="status" class="status" role="status"></p>
+  </header>
+
+  <nav class="toolbar" aria-label="Walk filters">
+    <div class="mode-switch" role="group" aria-label="Show">
+      <button type="button" data-mode="list" aria-pressed="true">List</button>
+      <button type="button" data-mode="month" aria-pressed="false">Month</button>
+      <button type="button" data-mode="day" aria-pressed="false">Day</button>
+    </div>
+    <label class="day-pick" id="day-pick" hidden>
+      <span class="sr-only">Day</span>
+      <input type="date" id="day-input">
+    </label>
+    <select id="grade-filter" aria-label="Grade">
+      <option value="ALL">All grades</option>
+      <option value="E">E · Easy</option>
+      <option value="M">M · Moderate</option>
+      <option value="MS">MS · Moderately Strenuous</option>
+      <option value="S">S · Strenuous</option>
+      <option value="VS">VS · Very Strenuous</option>
+      <option value="SUMMER">Summer walks</option>
+      <option value="SOCIAL">Social events</option>
+    </select>
+    <input type="search" id="search" placeholder="Search walks" aria-label="Search walks">
+  </nav>
+
+  <p class="count" id="count" aria-live="polite"></p>
+
+  <main>
+    <section id="month-view" class="month" hidden>
+      <div class="month-head">
+        <button type="button" id="prev-month" class="nav-btn" aria-label="Previous month">‹</button>
+        <h2 id="month-title"></h2>
+        <button type="button" id="next-month" class="nav-btn" aria-label="Next month">›</button>
+      </div>
+      <div class="weekdays" aria-hidden="true">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div id="month-grid" class="grid"></div>
+    </section>
+
+    <div id="list-view" class="list" aria-live="polite"></div>
+  </main>
+
+  <div class="detail-overlay" id="overlay">
+    <div class="detail-card walk-card-wrap" id="detail" role="dialog" aria-modal="true" aria-labelledby="detail-title"></div>
+  </div>
+
+  <dialog id="levels-dialog" class="levels-dialog">
+    <div class="levels-body">
+      <h2>Walk grades</h2>
+      <dl>
+        <dt>E · Easy</dt><dd>Gentle walking on good paths.</dd>
+        <dt>M · Moderate</dt><dd>Some climbing; a steady pace for the day.</dd>
+        <dt>MS · Moderately Strenuous</dt><dd>Longer or steeper; good fitness needed.</dd>
+        <dt>S · Strenuous</dt><dd>Long and steep, often over rough ground.</dd>
+        <dt>VS · Very Strenuous</dt><dd>Demanding; for experienced walkers only.</dd>
+      </dl>
+      <p class="levels-note">The full grade definitions are in the Walk Programme PDF.</p>
+      <button type="button" class="btn btn-secondary" data-close-levels>Close</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
