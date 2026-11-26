@@ -176,38 +176,54 @@ function visibleEntries(all) {
 
 /* ========================================================= LIST AND MONTH ========================================================= */
 
+// Small inline icons for the row's stats line
+const ROW_ICON = {
+  grade: '<path d="M3 20l6-10 4 6 3-4 5 8z"/>',
+  distance: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  ascent: '<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>',
+  duration: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+};
+function statChip(icon, textHtml, cls = "") {
+  return `<span class="${cls}"><svg viewBox="0 0 24 24" aria-hidden="true">${ROW_ICON[icon]}</svg>${textHtml}</span>`;
+}
+
 function rowHtml(e) {
   const cancelled = C.isCancelled(e.record);
   const isWalk = e.kind === "walk";
-  const route = isWalk ? (C.bookingRoute(e.record, state.masterWalks) || {}) : {};
-  // Walks: grade line reads Grade/Terrain/Scr/X, with Scr and X only when recorded
-  const grade = isWalk ? (C.getMasterRouteGrade(route) || e.grade) : e.grade;
-  const gradeParts = isWalk
-    ? [grade, String(route.Terrain ?? "").trim(), String(route.Scr ?? "").trim(), C.xFlag(route)].filter(Boolean)
-    : [];
-  const gradeBadge = gradeParts.length
-    ? `<span class="badge grade-${esc(grade)} grade-line">${esc(gradeParts.join("/"))}</span>`
+  const rec = e.record;
+  const route = isWalk ? (C.bookingRoute(rec, state.masterWalks) || {}) : {};
+  const grade = isWalk ? (C.getMasterRouteGrade(route) || e.grade) : "";
+  // Walks: the colour badge carries the grade letter only. Social events and summer walks keep their type badge.
+  const slot = isWalk
+    ? `<span class="badge grade-${esc(grade)} row-grade">${esc(grade || "–")}</span>`
+    : `<span class="badge ${e.grade === "SUMMER" ? "summer" : "social"}">${e.grade === "SUMMER" ? "Summer" : "Social"}</span>`;
+  // Stats line: Grade/Terrain/Scr/X (Scr and X only when recorded), distance, ascent, duration
+  const gradeLine = isWalk
+    ? [grade, String(route.Terrain ?? "").trim(), String(route.Scr ?? "").trim(), C.xFlag(route)].filter(Boolean).join(" / ")
     : "";
-  const durationRaw = isWalk ? route.Total_Time : e.record.duration;
-  const durationBadge = String(durationRaw ?? "").trim()
-    ? `<span class="badge duration-badge">${C.statDuration(durationRaw)}</span>`
-    : "";
-  const desc = String((isWalk ? route.Route_Description : e.record.description) ?? "").trim();
-  // Social events and summer walks keep their own badge on the right
-  const typeBadge = isWalk ? "" : `<span class="badge ${e.grade === "SUMMER" ? "summer" : "social"}">${e.grade === "SUMMER" ? "Summer" : "Social"}</span>`;
+  const distance = plainStat(isWalk ? route.Distance : rec.distance, "km");
+  const ascent = plainStat(isWalk ? route.Ascent : rec.ascent, "m");
+  const durationRaw = isWalk ? route.Total_Time : rec.duration;
+  const stats = [
+    gradeLine ? statChip("grade", esc(gradeLine), "stat-grade") : "",
+    distance ? statChip("distance", esc(distance)) : "",
+    ascent ? statChip("ascent", esc(ascent)) : "",
+    String(durationRaw ?? "").trim() ? statChip("duration", C.statDuration(durationRaw)) : "",
+  ].filter(Boolean).join("");
+  const desc = String((isWalk ? route.Route_Description : rec.description) ?? "").trim();
   return `
     <button type="button" class="row${cancelled ? " is-cancelled" : ""}" data-kind="${e.kind}" data-key="${esc(e.key)}">
       <span class="row-when">
         <span class="row-time">${esc(C.formatTime12(e.time) || "–")}</span>
-        ${durationBadge}${gradeBadge}
       </span>
+      ${slot}
       <span class="row-main">
         <span class="row-name">${esc(entryName(e))}</span>
         ${cancelled ? `<span class="cancelled-badge">Cancelled</span>` : ""}
-        <span class="row-meta">${esc(entryMeta(e))}</span>
+        ${stats ? `<span class="row-stats">${stats}</span>` : ""}
+        ${!isWalk && entryMeta(e) ? `<span class="row-meta">${esc(entryMeta(e))}</span>` : ""}
         ${desc ? `<span class="row-desc">${esc(desc)}</span>` : ""}
       </span>
-      ${typeBadge}
     </button>`;
 }
 
