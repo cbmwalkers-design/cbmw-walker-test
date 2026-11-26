@@ -215,8 +215,8 @@ function rowHtml(e) {
     <button type="button" class="row${cancelled ? " is-cancelled" : ""}" data-kind="${e.kind}" data-key="${esc(e.key)}">
       <span class="row-when">
         <span class="row-time">${esc(C.formatTime12(e.time) || "–")}</span>
+        ${slot}
       </span>
-      ${slot}
       <span class="row-main">
         <span class="row-name">${esc(entryName(e))}</span>
         ${cancelled ? `<span class="cancelled-badge">Cancelled</span>` : ""}
