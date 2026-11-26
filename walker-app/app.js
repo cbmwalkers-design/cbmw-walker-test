@@ -189,6 +189,7 @@ function statChip(icon, textHtml, cls = "") {
 
 function rowHtml(e) {
   const cancelled = C.isCancelled(e.record);
+  const changed = !cancelled && e.record.modified === true;
   const isWalk = e.kind === "walk";
   const rec = e.record;
   const route = isWalk ? (C.bookingRoute(rec, state.masterWalks) || {}) : {};
@@ -220,6 +221,7 @@ function rowHtml(e) {
       <span class="row-main">
         <span class="row-name">${esc(entryName(e))}</span>
         ${cancelled ? `<span class="cancelled-badge">Cancelled</span>` : ""}
+        ${changed ? `<span class="modified-chip">Changed</span>` : ""}
         ${stats ? `<span class="row-stats">${stats}</span>` : ""}
         ${!isWalk && entryMeta(e) ? `<span class="row-meta">${esc(entryMeta(e))}</span>` : ""}
         ${desc ? `<span class="row-desc">${esc(desc)}</span>` : ""}
