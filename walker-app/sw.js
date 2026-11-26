@@ -1,7 +1,7 @@
 // Service worker for the Walker App (scope: /cbmw/walker-app/).
 // Keeps the app's own files and the Firebase library on the device, so the app opens with no signal.
 // Walk data is kept separately by app.js (see the offline copy there).
-const CACHE = "cbmw-walker-v4";
+const CACHE = "cbmw-walker-v5";
 
 // Our own files, cached at install
 const SHELL = [

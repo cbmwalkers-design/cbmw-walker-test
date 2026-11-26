@@ -178,18 +178,36 @@ function visibleEntries(all) {
 
 function rowHtml(e) {
   const cancelled = C.isCancelled(e.record);
-  const badge = e.kind === "walk"
-    ? `<span class="badge grade-${esc(e.grade)}">${esc(e.grade || "–")}</span>`
-    : `<span class="badge ${e.grade === "SUMMER" ? "summer" : "social"}">${e.grade === "SUMMER" ? "Summer" : "Social"}</span>`;
+  const isWalk = e.kind === "walk";
+  const route = isWalk ? (C.bookingRoute(e.record, state.masterWalks) || {}) : {};
+  // Walks: grade line reads Grade/Terrain/Scr/X, with Scr and X only when recorded
+  const grade = isWalk ? (C.getMasterRouteGrade(route) || e.grade) : e.grade;
+  const gradeParts = isWalk
+    ? [grade, String(route.Terrain ?? "").trim(), String(route.Scr ?? "").trim(), C.xFlag(route)].filter(Boolean)
+    : [];
+  const gradeBadge = gradeParts.length
+    ? `<span class="badge grade-${esc(grade)} grade-line">${esc(gradeParts.join("/"))}</span>`
+    : "";
+  const durationRaw = isWalk ? route.Total_Time : e.record.duration;
+  const durationBadge = String(durationRaw ?? "").trim()
+    ? `<span class="badge duration-badge">${C.statDuration(durationRaw)}</span>`
+    : "";
+  const desc = String((isWalk ? route.Route_Description : e.record.description) ?? "").trim();
+  // Social events and summer walks keep their own badge on the right
+  const typeBadge = isWalk ? "" : `<span class="badge ${e.grade === "SUMMER" ? "summer" : "social"}">${e.grade === "SUMMER" ? "Summer" : "Social"}</span>`;
   return `
     <button type="button" class="row${cancelled ? " is-cancelled" : ""}" data-kind="${e.kind}" data-key="${esc(e.key)}">
-      <span class="row-time">${esc(C.formatTime12(e.time) || "–")}</span>
+      <span class="row-when">
+        <span class="row-time">${esc(C.formatTime12(e.time) || "–")}</span>
+        ${durationBadge}${gradeBadge}
+      </span>
       <span class="row-main">
         <span class="row-name">${esc(entryName(e))}</span>
         ${cancelled ? `<span class="cancelled-badge">Cancelled</span>` : ""}
         <span class="row-meta">${esc(entryMeta(e))}</span>
+        ${desc ? `<span class="row-desc">${esc(desc)}</span>` : ""}
       </span>
-      ${badge}
+      ${typeBadge}
     </button>`;
 }
 
